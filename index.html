@@ -1,0 +1,41 @@
+-- ZFM Times DEMO SEED. Placeholder content only. Delete before going live:
+--   delete from articles where headline like '[DEMO]%';
+
+insert into categories (slug, name_hi, name_en, kind, sort_order) values
+  ('local', 'स्थानीय', 'Local', 'section', 1),
+  ('state', 'राज्य', 'State', 'section', 2),
+  ('india', 'भारत', 'India', 'section', 3),
+  ('politics', 'राजनीति', 'Politics', 'section', 4),
+  ('business', 'व्यापार', 'Business', 'section', 5),
+  ('technology', 'टेक्नोलॉजी', 'Technology', 'section', 6),
+  ('sports', 'खेल', 'Sports', 'section', 7),
+  ('entertainment', 'मनोरंजन', 'Entertainment', 'section', 8),
+  ('education', 'शिक्षा', 'Education', 'section', 9),
+  ('jobs', 'रोजगार', 'Jobs', 'section', 10),
+  ('health', 'स्वास्थ्य', 'Health', 'section', 11),
+  ('world', 'दुनिया', 'World', 'section', 12)
+on conflict (slug) do nothing;
+
+-- Example district placeholders (edit in the admin panel to match your coverage area).
+insert into categories (slug, name_hi, name_en, kind, sort_order, parent_id)
+select d.slug, d.name_hi, d.name_en, 'district', d.ord, (select id from categories where slug = 'state')
+from (values ('lucknow','लखनऊ','Lucknow',1), ('kanpur','कानपुर','Kanpur',2), ('varanasi','वाराणसी','Varanasi',3)) as d(slug,name_hi,name_en,ord)
+on conflict (slug) do nothing;
+
+insert into site_settings (key, value) values
+  ('site', '{"name":"ZFM Times","tagline_hi":"आपकी खबर, आपके शहर की","contact_email":"contact@example.com","contact_phone":"+00-0000000000","address":"Placeholder address"}'),
+  ('social', '{"facebook":"","x":"","instagram":"","youtube":""}')
+on conflict (key) do nothing;
+
+insert into articles (slug, headline, subheadline, summary, body_html, category_id, district_id, author_name, status, published_at, is_featured, is_breaking, seo_description)
+select 'demo-local-1', '[DEMO] स्थानीय खबर का नमूना', 'डेमो सामग्री', 'यह केवल परीक्षण के लिए नमूना सारांश है।',
+       '<p>यह डेमो सामग्री है और असली खबर नहीं है।</p>',
+       (select id from categories where slug='local'), (select id from categories where slug='lucknow'),
+       'ZFM Demo Desk', 'published', now(), true, true, 'Demo article for testing.'
+on conflict (slug) do nothing;
+
+insert into articles (slug, headline, subheadline, summary, body_html, category_id, author_name, status, published_at, seo_description)
+select 'demo-state-1', '[DEMO] State news sample', 'Demo content', 'Sample summary for testing only.',
+       '<p>This is demo content, not a real news report.</p>',
+       (select id from categories where slug='state'), 'ZFM Demo Desk', 'published', now(), 'Demo article for testing.'
+on conflict (slug) do nothing;
